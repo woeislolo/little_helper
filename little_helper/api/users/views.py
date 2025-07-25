@@ -1,3 +1,48 @@
-from django.shortcuts import render
+from django.contrib.auth import get_user_model, authenticate
 
-# Create your views here.
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import generics, status
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .serializers import *
+
+
+CustomUser = get_user_model()
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = RegisterSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+        self.tokens = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        response.data.update(self.tokens)
+        return response
+
+
+class LoginView(APIView):
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            })
+        return Response(data={'detail': 'Invalid credentials'}, 
+                        status=status.HTTP_401_UNAUTHORIZED)
