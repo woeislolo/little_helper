@@ -15,6 +15,8 @@ CustomUser = get_user_model()
 
 
 class RegisterView(generics.CreateAPIView):
+    """ Регистрация """
+
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
 
@@ -33,6 +35,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(APIView):
+    """ Логин """
 
     def post(self, request):
         email = request.data.get('email')
@@ -51,6 +54,8 @@ class LoginView(APIView):
 
 
 class UserViewSet(ReadOnlyModelViewSet):
+    """ Возвращает одного или всех юзеров """
+
     queryset = CustomUser.objects.all() 
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser,]
