@@ -32,3 +32,13 @@ class HelpRequestUpdateDestroyView(mixins.UpdateModelMixin,
     queryset = HelpRequest.objects.all()
     serializer_class = HelpRequestSerializer
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrAdminOrReadOnly]
+
+
+class MyHelpRequestsListView(generics.ListAPIView):
+    """ Возвращает список заявок юзера """
+
+    serializer_class = HelpRequestSerializer
+    permission_classes = [permissions.IsAuthenticated,]
+
+    def get_queryset(self):
+        return HelpRequest.objects.filter(author=self.request.user)
