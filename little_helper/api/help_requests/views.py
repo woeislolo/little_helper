@@ -1,4 +1,6 @@
-from rest_framework import generics, permissions, mixins
+from rest_framework import generics, permissions, mixins, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .models import *
 from .serializers import *
@@ -42,3 +44,23 @@ class MyHelpRequestsListView(generics.ListAPIView):
 
     def get_queryset(self):
         return HelpRequest.objects.filter(author=self.request.user)
+
+
+class CloseHelpRequestView(APIView):
+    """ Меняет статус заявки на closed """
+
+    permission_classes = [permissions.IsAuthenticated, IsAuthorOrAdminOrReadOnly]
+
+    def post(self, request, pk):
+        try:
+            help_request = HelpRequest.objects.get(pk=pk)
+        except HelpRequest.DoesNotExist:
+            return Response({'detail': 'Not found'}, 
+                            status=status.HTTP_404_NOT_FOUND)
+
+        self.check_object_permissions(request, help_request)
+
+        help_request.status = HelpRequest.Status.CLOSED
+        help_request.save()
+        
+        return Response(HelpRequestSerializer(help_request).data)
