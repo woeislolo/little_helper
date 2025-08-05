@@ -22,18 +22,9 @@ class HelpRequestListCreateView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
-class HelpRequestRetrieveView(generics.RetrieveAPIView):
-    """ Возвращает заявку по id """
-
-    queryset = HelpRequest.objects.all()
-    serializer_class = HelpRequestSerializer
-    permission_classes = [permissions.IsAuthenticated,]
-
-
-class HelpRequestUpdateDestroyView(mixins.UpdateModelMixin,
-                                   mixins.DestroyModelMixin,
-                                   generics.GenericAPIView):
-    """ Изменяет или удаляет заявку по id (только автор заявки) """
+class HelpRequestRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """ Возвращает заявку по id (для всех авторизованных),
+     изменяет или удаляет заявку по id (только автор заявки или админ)  """
 
     queryset = HelpRequest.objects.all()
     serializer_class = HelpRequestSerializer
