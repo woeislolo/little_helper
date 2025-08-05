@@ -3,15 +3,17 @@ from django.conf import settings
 
 
 class HelpRequest(models.Model):
+
     class Status(models.TextChoices):
         OPEN = 'open', 'Open'
         IN_PROGRESS = 'in_progress', 'In progress'
         CLOSED = 'closed', 'Closed'
 
-    class Urgency(models.TextChoices):
-        LOW = 'low', 'Low'
-        MEDIUM = 'medium', 'Medium'
-        HIGH = 'high', 'High'
+    class Urgency(models.IntegerChoices):
+        LOW = 1, 'Low'
+        MEDIUM = 2, 'Medium'
+        HIGH = 3, 'High'
+
 
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -21,8 +23,7 @@ class HelpRequest(models.Model):
     title = models.CharField(max_length=255)
     topic = models.CharField(max_length=100)
     description = models.TextField()
-    urgency = models.CharField(
-        max_length=6,
+    urgency = models.IntegerField(
         choices=Urgency.choices,
         default=Urgency.MEDIUM
     )
