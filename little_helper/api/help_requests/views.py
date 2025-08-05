@@ -2,6 +2,8 @@ from rest_framework import generics, permissions, mixins, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import *
 from .serializers import *
 from .permissions import *
@@ -13,6 +15,8 @@ class HelpRequestListCreateView(generics.ListCreateAPIView):
     queryset = HelpRequest.objects.all()
     serializer_class = HelpRequestSerializer
     permission_classes = [permissions.IsAuthenticated,]
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['status', 'urgency', 'topic']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
