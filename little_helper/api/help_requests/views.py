@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, mixins, status
+from rest_framework import generics, permissions, mixins, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -10,13 +10,16 @@ from .permissions import *
 
 
 class HelpRequestListCreateView(generics.ListCreateAPIView):
-    """ Возвращает список всех заявок либо создает заявку """
+    """ Возвращает список всех заявок с учетом фильтров и упорядочивания
+    либо создает заявку """
 
     queryset = HelpRequest.objects.all()
     serializer_class = HelpRequestSerializer
     permission_classes = [permissions.IsAuthenticated,]
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['status', 'urgency', 'topic']
+    ordering_fields = ['status', 'urgency', 'topic']
+    ordering = ['-urgency']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
