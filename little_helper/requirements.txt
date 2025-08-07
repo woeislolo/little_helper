@@ -6,3 +6,5 @@ python-dotenv==1.1.0
 celery==5.5.3
 redis==5.2.1
 django-filter==25.1
+pytest==8.4.1
+pytest-django==4.11.1
