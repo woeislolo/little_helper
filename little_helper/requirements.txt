@@ -8,3 +8,5 @@ redis==5.2.1
 django-filter==25.1
 pytest==8.4.1
 pytest-django==4.11.1
+factory_boy==3.3.3
+Faker==37.5.3 
