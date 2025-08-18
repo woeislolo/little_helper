@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 import pytest
 
 from tests.factories import UserFactory
+from help_requests.models import *
 
 
 @pytest.fixture
@@ -23,6 +24,18 @@ def auth_client(auth_user):
     client = APIClient()
     client.force_authenticate(user=auth_user)
     return client
+
+@pytest.fixture
+def help_request(db):
+    """Help request"""
+    author = UserFactory()
+
+    return HelpRequest.objects.create(
+        author=author,
+        title='Тестовый запрос',
+        description='Тестовое описание',
+        topic='chat',
+    )
 
 # @pytest.fixture(scope="function", autouse=True)
 # def load_test_data(db, django_db_blocker):
