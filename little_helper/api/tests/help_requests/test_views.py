@@ -259,3 +259,40 @@ class TestMyHelpRequestsListView:
         assert response.status_code == 200
         assert len(response_data) == 2
         assert [item["id"] for item in response_data] == [help_request_1.id, help_request_2.id]
+
+
+@pytest.mark.django_db
+class TestCloseHelpRequestView:
+
+    def test_close_request_unauthenticated(self, api_client, help_request):
+        url = reverse('close-request', kwargs={'pk': help_request.pk})
+
+        response = api_client.post(url)
+
+        assert response.status_code == 401
+
+    def test_close_request_by_author_success(self, api_client, help_request):
+        url = reverse('close-request', kwargs={'pk': help_request.pk})
+        api_client.force_authenticate(help_request.author)
+    
+        response = api_client.post(url)
+
+        assert response.status_code == 204
+
+    def test_close_request_by_not_author_forbidden(self, api_client, help_request):
+        not_author = UserFactory(email='user@user.com', password='12341234')
+        url = reverse('close-request', kwargs={'pk': help_request.pk})
+        api_client.force_authenticate(not_author)
+    
+        response = api_client.post(url)
+
+        assert response.status_code == 403
+
+    def test_close_unexisted_request_by_author_not_found(self, api_client, help_request):
+        url = reverse('close-request', kwargs={'pk': 999})
+
+        api_client.force_authenticate(help_request.author)
+    
+        response = api_client.post(url)
+
+        assert response.status_code == 404
