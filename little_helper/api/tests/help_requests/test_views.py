@@ -222,3 +222,40 @@ class TestHelpRequestRetrieveUpdateDestroyView:
 
         assert response.status_code == 403
         assert HelpRequest.objects.filter(pk=help_request.pk).exists()
+
+
+@pytest.mark.django_db
+class TestMyHelpRequestsListView:
+    def setup_method(self):
+        self.url = reverse('my-requests')
+
+    def test_get_requests_unauthenticated_forbidden(self, api_client):
+        response = api_client.get(self.url)
+
+        assert response.status_code == 401
+
+    def test_get_only_authors_requests_success(self, api_client):
+        author = UserFactory(email='user@user.com', password='12341234')
+        help_request_1 = HelpRequest.objects.create(
+            author=author,
+            title='Test 1',
+            topic='chat',
+        )
+        help_request_2 = HelpRequest.objects.create(
+            author=author,
+            title='Test 2',
+            topic='chat',
+        )
+        other = HelpRequest.objects.create(
+            author=UserFactory(email="other@other.com", password='12341234'),
+            title="Other",
+            topic="chat"
+        )
+        api_client.force_authenticate(author)
+    
+        response = api_client.get(self.url)
+        response_data = response.json()
+
+        assert response.status_code == 200
+        assert len(response_data) == 2
+        assert [item["id"] for item in response_data] == [help_request_1.id, help_request_2.id]
