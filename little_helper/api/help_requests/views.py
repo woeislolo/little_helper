@@ -27,7 +27,7 @@ class HelpRequestListCreateView(generics.ListCreateAPIView):
 
 class HelpRequestRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """ Возвращает заявку по id (для всех авторизованных),
-     изменяет или удаляет заявку по id (только автор заявки или админ)  """
+     изменяет или удаляет заявку по id (только автор заявки или админ) """
 
     queryset = HelpRequest.objects.all()
     serializer_class = HelpRequestSerializer
@@ -53,7 +53,7 @@ class CloseHelpRequestView(APIView):
         try:
             help_request = HelpRequest.objects.get(pk=pk)
         except HelpRequest.DoesNotExist:
-            return Response({'detail': 'Not found'}, 
+            return Response(data={'detail': 'Not found'}, 
                             status=status.HTTP_404_NOT_FOUND)
 
         self.check_object_permissions(request, help_request)
@@ -61,4 +61,5 @@ class CloseHelpRequestView(APIView):
         help_request.status = HelpRequest.Status.CLOSED
         help_request.save()
         
-        return Response(HelpRequestSerializer(help_request).data)
+        return Response(data=HelpRequestSerializer(help_request).data, 
+                        status=status.HTTP_204_NO_CONTENT)
