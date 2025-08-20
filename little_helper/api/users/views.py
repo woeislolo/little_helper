@@ -20,19 +20,6 @@ class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
 
-    def perform_create(self, serializer):
-        user = serializer.save()
-        refresh = RefreshToken.for_user(user)
-        self.tokens = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        response.data.update(self.tokens)
-        return response
-
 
 class LoginView(APIView):
     """ Логин """
