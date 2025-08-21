@@ -79,3 +79,78 @@ class TestRegisterView:
         response = api_client.post(self.url, data, format='json')
 
         assert response.status_code == 400
+
+
+@pytest.mark.django_db
+class TestLoginView:
+
+    def setup_method(self):
+        self.url = reverse('login')
+
+        base_user = CustomUser.objects.create_user(
+            email="base@test.com",
+            password="password123",
+        )
+
+    def test_login_user_success(self, api_client):
+        data = {
+            "email": "base@test.com",
+            "password": "password123",
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 200
+        assert "access" in response.data
+        assert "refresh" in response.data
+
+    def test_login_user_with_unneccessery_fields(self, api_client):        
+        data = {
+            "email": "base@test.com",
+            "password": "password123",
+            "phone_number": "79998886655"
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 200
+        assert "access" in response.data
+        assert "refresh" in response.data
+
+    def test_login_user_with_wrong_password(self, api_client):
+        data = {
+            "email": "base@test.com",
+            "password": "password13",
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 401
+
+    def test_login_user_with_unexisting_email(self, api_client):
+        data = {
+            "email": "bas@test.com",
+            "password": "password123",
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 401
+
+    def test_login_user_without_password(self, api_client):
+        data = {
+            "email": "base@test.com",
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 401
+
+    def test_login_user_without_email(self, api_client):
+        data = {
+            "password": "password123",
+        }
+
+        response = api_client.post(self.url, data, format='json')
+
+        assert response.status_code == 401
