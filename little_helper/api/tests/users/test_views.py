@@ -154,3 +154,49 @@ class TestLoginView:
         response = api_client.post(self.url, data, format='json')
 
         assert response.status_code == 401
+
+
+@pytest.mark.django_db
+class TestUserViewSet:
+
+    def setup_method(self):
+        self.admin = CustomUser.objects.create_superuser(
+            email="admin@example.com",
+            password="adminpass"
+        )
+        self.user1 = CustomUser.objects.create_user(email="user1@example.com", password="pass1")
+        self.user2 = CustomUser.objects.create_user(email="user2@example.com", password="pass2")
+
+    def test_admin_can_list_users(self, api_client):
+        url = reverse("customuser-list")
+        api_client.force_authenticate(self.admin)
+
+        response = api_client.get(url, format="json")
+
+        assert response.status_code == 200
+        assert len(response.data) == 3
+
+    def test_admin_can_retrieve_user(self, api_client):
+        url = reverse("customuser-detail", kwargs={"pk": self.user1.pk})
+        api_client.force_authenticate(user=self.admin)
+        
+        response = api_client.get(url, format="json")
+
+        assert response.status_code == 200
+        assert response.data["email"] == self.user1.email
+
+    def test_non_admin_cannot_access_user_list(self, api_client):
+        url = reverse("customuser-list")
+        api_client.force_authenticate(user=self.user1)
+
+        response = api_client.get(url, format="json")
+
+        assert response.status_code == 403
+
+    def test_non_admin_cannot_access_user_detail(self, api_client):
+        url = reverse("customuser-detail", kwargs={"pk": self.user1.pk})
+        api_client.force_authenticate(user=self.user1)
+
+        response = api_client.get(url, format="json")
+
+        assert response.status_code == 403
