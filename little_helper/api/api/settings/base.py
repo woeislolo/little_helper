@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'help_requests.apps.HelpRequestsConfig',
+    'responses.apps.ResponsesConfig',
 ]
 
 MIDDLEWARE = [
