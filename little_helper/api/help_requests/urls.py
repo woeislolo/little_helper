@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import *
+from responses.views import *
 
 
 urlpatterns = [
@@ -8,4 +9,9 @@ urlpatterns = [
     path('requests/<int:pk>/', HelpRequestRetrieveUpdateDestroyView.as_view(), name='request-detail'),
     path('requests/mine/', MyHelpRequestsListView.as_view(), name='my-requests'),
     path('requests/<int:pk>/close/', CloseHelpRequestView.as_view(), name='close-request'),
+
+    path('<int:request_id>/responses/', ResponseListCreateView.as_view(), 
+         name='response-list-create'),
+    path('<int:request_id>/responses/<int:pk>/', ResponseDetailView.as_view(), 
+         name='response-detail'),
 ]
