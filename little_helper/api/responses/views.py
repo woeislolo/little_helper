@@ -36,6 +36,8 @@ class ResponseDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ResponseSerializer
     permission_classes = [ResponsePermission,]
 
+    def get_help_request(self):
+        return HelpRequest.objects.get(pk=self.kwargs["request_id"])
+    
     def get_queryset(self):
-        request_id = self.kwargs["request_id"]
-        return Response.objects.filter(help_request_id=request_id)
+        return Response.objects.filter(help_request=self.get_help_request())
