@@ -18,8 +18,9 @@ class ResponsePermission(permissions.BasePermission):
             return False
 
         request_id = view.kwargs.get("request_id")
+        response_id = view.kwargs.get("pk", None)
 
-        if request_id is not None:
+        if request_id and not response_id:
             # GET (list): автор запроса или админ
             if request.method in permissions.SAFE_METHODS:
                 help_request = view.get_help_request()
